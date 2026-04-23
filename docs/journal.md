@@ -1,6 +1,6 @@
 # Development Journal
 
-## Step 1 – 24.04
+## Step 1
 
 ### Planned System Description and Goal
 
@@ -36,9 +36,7 @@ This tool will connect to the Gmail API and retrieve unread emails from the user
 
 The planned Gmail scope is:
 
-```text
 https://www.googleapis.com/auth/gmail.readonly
-```
 
 #### 2. Email Cleaner Tool
 
@@ -46,9 +44,9 @@ This tool will convert Gmail API responses into a simpler internal format. Gmail
 
 The planned extracted fields are:
 
-sender
-subject
-date
+sender  
+subject  
+date  
 snippet or body preview
 
 This makes the data easier to send to the AI model and easier to test.
@@ -59,39 +57,39 @@ This tool will send the cleaned email information to an external AI API, such as
 
 The planned AI output fields are:
 
-category
-priority
-summary
+category  
+priority  
+summary  
 suggested action
 
 Possible priority levels are:
 
-High
-Medium
+High  
+Medium  
 Low
 
 Possible categories are:
 
-University
-Work
-Personal
-Finance
-Promotion
-Newsletter
-Spam
+University  
+Work  
+Personal  
+Finance  
+Promotion  
+Newsletter  
+Spam  
 Other
 
 #### 4. Priority Scoring Tool
 
 This tool will help decide how important an email is. It may check for important words such as:
 
-deadline
-urgent
-payment
-invoice
-meeting
-assignment
-exam
+deadline  
+urgent  
+payment  
+invoice  
+meeting  
+assignment  
+exam  
 important
 
 The keyword result can support the AI classification and help the agent sort important emails first.
