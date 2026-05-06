@@ -1,0 +1,20 @@
+[
+  {
+    "sender": "professor@example.com",
+    "subject": "Final project deadline reminder",
+    "date": "2026-05-10",
+    "snippet": "Please remember that your final project must be submitted before the deadline. Make sure your GitHub repository is ready."
+  },
+  {
+    "sender": "shop@example.com",
+    "subject": "Weekend discount offer",
+    "date": "2026-05-10",
+    "snippet": "Get 40% off on selected items this weekend only. Visit our store for more details."
+  },
+  {
+    "sender": "bank@example.com",
+    "subject": "Payment confirmation required",
+    "date": "2026-05-09",
+    "snippet": "Please confirm your recent payment activity. If this was not you, contact support immediately."
+  }
+]
