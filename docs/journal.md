@@ -221,3 +221,301 @@ The current implementation includes:
 - A readable triage report output
 
 This version demonstrates the main agent workflow and tool integration before real Gmail and external AI API integration are added.
+
+---
+
+## Step 3
+
+### Testing Process
+
+Testing was performed after the main implementation workflow was created. The project uses `pytest` to test the main tools and the full agent workflow. The testing process checks whether the system cleans email data correctly, calculates priority correctly, classifies emails correctly, handles empty input, and generates a readable triage report.
+
+The tests use sample email dictionaries instead of real Gmail messages. This makes the tests safe and repeatable. It also avoids depending on internet access, real inbox data, or private user credentials.
+
+The Gemini API integration includes a local fallback mode. If the API key is missing or the API request fails, the system can still analyze emails using local rule-based logic. This makes the software easier to test and safer for controlled deployment.
+
+### Test Scenarios
+
+#### Test Scenario 1: Email Cleaning with Complete Data
+
+Input:
+
+```text
+sender: " professor@example.com "
+subject: " Final deadline "
+date: " 2026-05-10 "
+snippet: " Submit your work. "
+```
+
+Expected result:
+
+```text
+sender: "professor@example.com"
+subject: "Final deadline"
+date: "2026-05-10"
+snippet: "Submit your work."
+```
+
+Purpose:
+
+This test verifies that the Email Cleaner Tool removes unnecessary spaces and returns a consistent email format.
+
+#### Test Scenario 2: Email Cleaning with Missing Fields
+
+Input:
+
+```text
+{}
+```
+
+Expected result:
+
+```text
+sender: "Unknown sender"
+subject: "No subject"
+date: "Unknown date"
+snippet: ""
+```
+
+Purpose:
+
+This test verifies that the system can handle incomplete email data without crashing.
+
+#### Test Scenario 3: High Priority Detection
+
+Input:
+
+```text
+subject: "Urgent payment required"
+snippet: "Please confirm immediately."
+```
+
+Expected result:
+
+```text
+High
+```
+
+Purpose:
+
+This test verifies that the Priority Scoring Tool detects urgent or important keywords.
+
+#### Test Scenario 4: Medium Priority Detection
+
+Input:
+
+```text
+subject: "Project meeting reminder"
+snippet: "Please check the schedule."
+```
+
+Expected result:
+
+```text
+Medium
+```
+
+Purpose:
+
+This test verifies that the Priority Scoring Tool can detect medium-priority emails.
+
+#### Test Scenario 5: Low Priority Detection
+
+Input:
+
+```text
+subject: "Weekend discount"
+snippet: "Sale on selected items."
+```
+
+Expected result:
+
+```text
+Low
+```
+
+Purpose:
+
+This test verifies that emails without important keywords are classified as low priority.
+
+#### Test Scenario 6: Finance Category Classification
+
+Input:
+
+```text
+sender: "bank@example.com"
+subject: "Payment confirmation"
+snippet: "Please confirm your recent payment."
+```
+
+Expected result:
+
+```text
+Finance
+```
+
+Purpose:
+
+This test verifies that the AI triage tool can classify finance-related emails.
+
+#### Test Scenario 7: Promotion Category Classification
+
+Input:
+
+```text
+sender: "shop@example.com"
+subject: "Discount offer"
+snippet: "Get 40% off this weekend."
+```
+
+Expected result:
+
+```text
+Promotion
+```
+
+Purpose:
+
+This test verifies that the AI triage tool can classify promotional emails.
+
+#### Test Scenario 8: AI Tool Fallback Mode
+
+Input:
+
+```text
+Email about assignment deadline with no GEMINI_API_KEY available.
+```
+
+Expected result:
+
+```text
+analysis_source: local_fallback
+category: University
+priority: High
+```
+
+Purpose:
+
+This test verifies that the system still works when the Gemini API key is missing or unavailable.
+
+#### Test Scenario 9: Full Agent Workflow
+
+Input:
+
+```text
+sender: "professor@example.com"
+subject: "Final project deadline reminder"
+date: "2026-05-10"
+snippet: "Please submit your final project before the deadline."
+```
+
+Expected result:
+
+```text
+The report contains:
+- InboxPilot AI - Unread Email Triage Report
+- Priority: High
+- Category: University
+```
+
+Purpose:
+
+This test verifies that the full agent workflow works correctly from raw email input to final report output.
+
+#### Test Scenario 10: Empty Email List
+
+Input:
+
+```text
+[]
+```
+
+Expected result:
+
+```text
+No emails found for triage.
+```
+
+Purpose:
+
+This test verifies that the system handles empty input correctly.
+
+### Testing Result
+
+The tests were executed using the following command:
+
+```bash
+python -m pytest
+```
+
+The result was:
+
+```text
+11 passed
+```
+
+This confirms that the main tools and the complete agent workflow work correctly with the current sample-data implementation.
+
+### Deployment Preparation
+
+The project is prepared as a local command-line application. Another user can run it by cloning the GitHub repository, installing the dependencies, creating a local `.env` file, and running the main Python file.
+
+The required dependencies are stored in `requirements.txt`.
+
+To install dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+To run the current sample-data version:
+
+```bash
+python src/main.py
+```
+
+To run tests:
+
+```bash
+python -m pytest
+```
+
+The project includes `.env.example`, which explains the required environment variables. The real `.env` file must not be uploaded to GitHub because it contains private API keys.
+
+Example `.env` file:
+
+```env
+GEMINI_API_KEY=your_real_gemini_api_key_here
+USE_GEMINI=true
+MAX_EMAILS=5
+```
+
+### Data Conversion and Porting
+
+The current version uses sample email data stored in `data/sample_emails.json`.
+
+The data conversion process is:
+
+1. The agent loads raw email records from a JSON file.
+2. Each raw email is represented as a Python dictionary.
+3. The Email Cleaner Tool converts each dictionary into a consistent internal format.
+4. The Priority Scoring Tool reads the cleaned subject and snippet.
+5. The AI Triage Tool sends the cleaned email information to Gemini when an API key is available.
+6. If Gemini is unavailable, the system uses local fallback logic.
+7. The AI Triage Tool adds category, summary, priority, suggested action, and analysis source.
+8. The Report Generator Tool converts the analyzed email dictionaries into a readable command-line report.
+
+This process preserves correctness because every email is converted into the same structure before analysis.
+
+### Deployment Strategy
+
+The suitable deployment strategy for this project is a local command-line tool. This is appropriate because the system handles private email-related data and API keys. Running it locally gives the user more control over credentials and data.
+
+A safe release strategy would be staged:
+
+1. First release: sample-data version with tests.
+2. Second release: Gemini API analysis with fallback mode.
+3. Third release: Gmail API read-only inbox connection.
+4. Future release: optional labels or archive suggestions, but only with user confirmation.
+
+The first real inbox version should use Gmail read-only permission to reduce risk.
